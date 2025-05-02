@@ -1,0 +1,119 @@
+#modal {
+	position: fixed;
+	top:0px;
+	bottom: 0px;
+	left:0px;
+	right:0px;
+	background-color:rgba(0,0,0,0.5);
+	z-index:1000;
+
+	display:flex;
+	flex-direction:column;
+	align-items:center;
+
+	animation-name: fadeIn;
+	animation-duration:150ms;
+	animation-timing-function: ease;
+}
+
+#modal > .modal-underlay {
+	position: absolute;
+	z-index: -1;
+	top:0px;
+	bottom:0px;
+	left: 0px;
+	right: 0px;
+}
+
+#modal > .modal-content {
+	margin-top:10vh;
+
+	width:80%;
+	max-width:600px;
+
+	overflow-y:auto;
+
+	border:solid 1px #999;
+	border-radius:8px;
+	box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.3);
+	background-color:#0a192f;
+	padding:20px;
+
+	animation-name:zoomIn;
+	animation-duration:150ms;
+	animation-timing-function: ease;
+}
+
+#modal.closing {
+	animation-name: fadeOut;
+	animation-duration:150ms;
+	animation-timing-function: ease;
+}
+
+#modal.closing > .modal-content {
+	animation-name: zoomOut;
+	animation-duration:150ms;
+	animation-timing-function: ease;
+}
+
+@keyframes fadeIn {
+	0% {opacity: 0;}
+	100% {opacity: 1;}
+}
+
+@keyframes fadeOut {
+	0% {opacity: 1;}
+	100% {opacity: 0;}
+}
+
+@keyframes zoomIn {
+	0% {transform: scale(0.9);}
+	100% {transform: scale(1);}
+}
+
+@keyframes zoomOut {
+	0% {transform: scale(1);}
+	100% {transform: scale(0.9);}
+}
+
+
+
+#watchlist_all_content {
+        display: flex;
+        flex-wrap: wrap;
+}
+#watched_movies_all_content {
+        display: flex;
+        flex-wrap: wrap;
+}
+.row {
+    display: flex;
+    width: 100%;
+}
+.col-4 {
+    width: 25%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+.content-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+.content-item img {
+    max-width: 100%;
+    height: auto;
+}
+
+
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        scroll-behavior: smooth;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+        scroll-behavior: smooth;
+    }

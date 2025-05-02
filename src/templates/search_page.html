@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block head %}
+<script src="https://unpkg.com/htmx.org@1.9.11"></script>
+<script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/json-enc.js"></script>
+<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+
+{% endblock %}
+
+{% block content %}
+
+<div class="min-h-screen py-12">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <h2 class="text-3xl font-bold text-white text-center mb-8">Results</h2>
+        <div class="space-y-6">
+            {% for content in data %}
+                <div class="bg-white bg-opacity-10 rounded-lg shadow-lg overflow-hidden backdrop-filter
+                backdrop-blur-lg">
+                    <div class="flex items-center p-6"
+                         onclick="window.location.href='/{{ content.media_type }}/page/{{ content.id }}'">
+                        <img src="/proxy/image/w200{{ content.poster_path }}"
+                             alt="{{ content.title }}{{ content.name }}" class="w-28 h-42 object-cover rounded-md mr-6"
+                             onclick="window.location.href='/{{ content.media_type }}/page/{{ content.id }}'">
+                        <div class="flex-grow">
+                            <h3 class="text-xl font-semibold text-white mb-2" >
+                                {{ content.title }}{{ content.name }}</h3>
+                            {% if content.release_date %}
+                                <p class="text-md text-gray-300 mb-2">{{ content.release_date[0:4] }}</p>
+                            {% elif content.first_air_date %}
+                                <p class="text-md text-gray-300 mb-2">{{ content.first_air_date[0:4] }}</p>
+                            {% endif %}
+                            <p class="text-sm font-medium text-blue-400 mb-3">{{ content.media_type }}</p>
+                        </div>
+                    </div>
+                    {% autoescape false %}
+                    {{ content.buttons }}
+                    {% endautoescape %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-col items-center bg-[#0a1524] p-5 mt-20 rounded-lg text-white">
+    <span class="text-md font-semibold mb-8">FrameShelf by Kozhonberdiev Artur</span>
+    <div class="flex gap-5">
+        <a href="https://t.me/FrankMirrr" target="_blank">
+            <img class="w-6 h-6 filter invert brightness-600 "
+                 src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" alt="Telegram">
+        </a>
+        <a href="https://github.com/Lock323" target="_blank">
+            <img class="w-6 h-6 invert brightness-600"
+                 src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub">
+        </a>
+    </div>
+</div>
+{% endblock %}

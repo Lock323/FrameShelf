@@ -1,0 +1,170 @@
+<div id="modal" class="fixed inset-0 flex items-center justify-center bg-opacity-50 z-50 text-gray-900"
+     _="on closeModal add .closing then wait for animationend then remove me">
+    <div class="modal-underlay absolute inset-0" _="on click trigger closeModal"></div>
+    <div class="modal-content relative bg-[#0a192f] text-white w-[500px] h-[600px] mx-auto rounded-lg shadow-lg
+    p-6 flex flex-col">
+        <span class="text-2xl font-bold text-[#FFA500] mb-4">{{ tv_data.name }}</span>
+        <div id="watched_percent_bar">
+            <span class="text-blue">{{ watched_percent }}%</span>
+            <div class="w-full bg-[#564a61] rounded-full h-2.5 ">
+                  <div class="bg-[#3a62ba] h-2.5 rounded-full" style="width: {{ watched_percent }}%"></div>
+            </div>
+        </div>
+        <br>
+        <div class="swap_tv">
+            {% if tv_data.watched %}
+                <button
+                class="bg-[#a66e44] hover:bg-[#b38890] text-white font-semibold py-1 px-1 rounded-lg transition
+                duration-300 ease-in-out font-sans"
+                hx-delete="/tv/remove_watched"
+                hx-vals='{"tv_data": {{ tv_data | tojson }}, "buttons_id": {"buttons_id": "{{ buttons_id }}" }}'
+                hx-ext='json-enc'
+                hx-target="closest .swap_tv"
+                hx-swap="outerHTML"
+                >
+                Remove TV Show
+                </button>
+            {% else %}
+                <button
+                class="bg-[#284370] hover:bg-[#265d7a] text-white font-semibold py-1 px-1 rounded-lg transition
+                duration-200 ease-in-out font-sans"
+                hx-post="/tv/add_watched"
+                hx-vals='{"tv_data": {{ tv_data | tojson }}, "buttons_id": {"buttons_id": "{{ buttons_id }}"} }'
+                hx-ext='json-enc'
+                hx-target="closest .swap_tv"
+                hx-swap="outerHTML"
+                >
+                Add TV Show
+                </button>
+            {% endif %}
+            <h1 class="text-center text-blue-300" >Seasons</h1>
+            {% for season in tv_data.seasons %}
+                <div class="season-container">
+                    <div class="season-header flex justify-between items-center">
+                        <span class="text-2xl font-bold">{{ season.name }}</span>
+                        <button class="toggle-episodes border border-[#F5C518] text-[#F5C518] rounded-md
+                        hover:bg-[#F5C518] hover:text-white transition duration-300 ease-in-out text-sm font-semibold"
+                                _="on click toggle .hidden on #season{{ season.season_number }}">Episodes</button>
+                        <div class="swap_season">
+                            {% if season.watched %}
+                                <button
+                                class="bg-[#a66e44] hover:bg-[#b38890] text-white font-semibold py-1 px-1 mb-3
+                                rounded-lg transition duration-300 ease-in-out font-sans"
+                                hx-delete="/tv/remove_season_watched"
+                                hx-vals='{"tv_data": {{ tv_data | tojson }}, "season_data": {{ season | tojson }},
+                                 "buttons_id": {"buttons_id": "{{ buttons_id }}"} }'
+                                hx-ext='json-enc'
+                                hx-target="closest .swap_season"
+                                hx-swap="outerHTML"
+                                >
+                                Remove Season
+                                </button>
+                            {% else %}
+                                <button
+                                class="bg-[#284370] hover:bg-[#265d7a] text-white font-semibold py-1 px-2 mb-3
+                                rounded-lg transition duration-200 ease-in-out font-sans"
+                                hx-post="/tv/add_season_watched"
+                                hx-vals='{"tv_data": {{ tv_data | tojson }}, "season_data": {{ season | tojson }},
+                                "buttons_id": {"buttons_id": "{{ buttons_id }}"} }'
+                                hx-ext='json-enc'
+                                hx-target="closest .swap_season"
+                                hx-swap="outerHTML"
+                                >
+                                Add Season
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if season.watched_episodes %}
+                        <div id="season{{ season.season_number }}" class="episodes-container hidden">
+                            {% set total_episodes = season.episode_count %}
+                                {% for ep in range(1, total_episodes + 1) %}
+                                    {% if loop.index0 % 8 == 0 %}
+                                        <div class="row">
+                                    {% endif %}
+
+                                    <div class="col-7">
+                                        <div class="swap_episode">
+                                            {% if ep <= season.watched_episodes %}
+                                                <button
+                                                    class="bg-[#b35b3e] hover:bg-[#265d7a] text-green font-semibold
+                                                    w-14 h-8 mr-2 mb-2 rounded-lg transition duration-200 ease-in-out
+                                                    font-sans"
+                                                    hx-put="/tv/add_episode_watched"
+                                                    hx-vals='{"tv_data": {{ tv_data | tojson }},
+                                                    "season_data": {{ season | tojson }},
+                                                    "episode_data": {"episode_number": {{ ep }} },
+                                                    "buttons_id": {"buttons_id": "{{ buttons_id }}" } }'
+                                                    hx-ext='json-enc'
+                                                    hx-target="#season{{ season.season_number }}"
+                                                    hx-swap="outerHTML"
+                                                >{{ ep }}</button>
+                                            {% else %}
+                                                <button
+                                                    class="bg-[#39519e] hover:bg-[#46316b] text-green font-semibold
+                                                    w-14 h-8 mr-2 mb-2 rounded-lg transition duration-200 ease-in-out
+                                                    font-sans"
+                                                    hx-put="/tv/add_episode_watched"
+                                                    hx-vals='{"tv_data": {{ tv_data | tojson }},
+                                                    "season_data": {{ season | tojson }},
+                                                    "episode_data": {"episode_number": {{ ep }} },
+                                                    "buttons_id": {"buttons_id": "{{ buttons_id }}" } }'
+                                                    hx-ext='json-enc'
+                                                    hx-target="#season{{ season.season_number }}"
+                                                    hx-swap="outerHTML"
+                                                >{{ ep }}</button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    {% if loop.index0 % 8 == 7 or loop.last %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                        </div>
+                    {% else %}
+                        <div id="season{{ season.season_number }}" class="episodes-container hidden">
+                            {% for unwatched_ep in range(1, season.episode_count + 1) %}
+                                {% if loop.index0 % 8 == 0 %}
+                                    <div class="row">
+                                {% endif %}
+                                <div class="col-7">
+                                    <div class="swap_episode">
+                                        <button
+                                            class="bg-[#39519e] hover:bg-[#46316b] text-green font-semibold w-14
+                                            h-8 mr-2 mb-2 rounded-lg transition duration-200 ease-in-out font-sans"
+                                            hx-put="/tv/add_episode_watched"
+                                            hx-vals='{"tv_data": {{ tv_data | tojson }},
+                                            "season_data": {{ season | tojson }},
+                                            "episode_data": {"episode_number": {{ unwatched_ep }} },
+                                            "buttons_id": {"buttons_id": "{{ buttons_id }}" } }'
+                                            hx-ext='json-enc'
+                                            hx-target="#season{{ season.season_number }}"
+                                            hx-swap="outerHTML"
+                                        >{{ unwatched_ep }}</button>
+                                    </div>
+                                </div>
+                                {% if loop.index0 % 8 == 7 or loop.last %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+		</div>
+		<br>
+		<br>
+		<button
+          class="absolute top-2 right-2 w-8 h-8 flex items-center justify-center rounded-full focus:outline-none"
+          _="on click trigger closeModal"
+          aria-label="Close"
+        >
+          <svg class="w-4 h-4 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+               stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+	</div>
+
+</div>

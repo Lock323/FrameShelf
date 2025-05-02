@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block head %}
+<script src="https://unpkg.com/htmx.org@1.9.11"></script>
+<script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/json-enc.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/response-targets.js"></script>
+<script src="/static/pw_visibility.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-[300px] mx-auto p-5" hx-ext="response-targets">
+  <form
+    hx-post="/sign_up"
+    hx-ext='json-enc'
+    hx-target="#ResponseText"
+    hx-target-422="#ErrorResponseText"
+  >
+    <div class="relative mb-4">
+      <input
+        type="text"
+        name="username"
+        placeholder="Username"
+        required
+        class="w-full p-2.5 mb-2 text-gray-900 bg-white dark:text-gray-100 dark:bg-gray-800 border border-gray-300
+        dark:border-gray-700 rounded-md"
+      >
+    </div>
+
+    <div class="relative mb-4">
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        required
+        class="w-full p-2.5 mb-2 text-gray-900 bg-white dark:text-gray-100 dark:bg-gray-800 border border-gray-300
+        dark:border-gray-700 rounded-md"
+      >
+    </div>
+
+    <div class="relative mb-4">
+      <input
+        type="password"
+        name="password"
+        id="password"
+        placeholder="Password"
+        required
+        autocomplete="off"
+        class="w-full p-2.5 mb-2 text-gray-900 bg-white dark:text-gray-100 dark:bg-gray-800 border border-gray-300
+        dark:border-gray-700 rounded-md"
+      >
+      <span
+        class="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer select-none text-lg"
+        onclick="togglePasswordVisibility()"
+      >
+        &#9679;
+      </span>
+    </div>
+
+    <button
+      type="submit"
+      class="w-full p-2.5 cursor-pointer text-gray-900 bg-white dark:text-gray-100 dark:bg-gray-800 border
+      border-gray-300 dark:border-gray-700 rounded-md"
+    >
+      Sign Up
+    </button>
+
+    <div id="ResponseText" class="mt-2"></div>
+    <div id="ErrorResponseText" class="mt-2 text-red-500"></div>
+  </form>
+</div>
+{% endblock %}

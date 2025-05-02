@@ -1,0 +1,134 @@
+<div class="flex space-x-4 px-4">
+    {% if watched_tv_content %}
+        {% for content in watched_tv_content %}
+            <div class="content_item flex-shrink-0 w-48 bg-gray-800 rounded-md shadow-md overflow-hidden">
+                <div class="relative pb-[140%]">
+                    <img src="/proxy/image/w200{{ content.poster_path }}" alt="{{ content.title }}"
+                         class="absolute inset-0 w-full h-full object-cover"
+                         onclick="window.location.href='/{{ content.media_type }}/page/{{ content.id }}'">
+                </div>
+                <div class="p-2">
+                    <h3 class="text-sm font-semibold text-white line-clamp-2 h-10" title="{{ content.title }}">
+                        {{ content.name }}</h3>
+                    <div class="flex items-center justify-between mt-1 text-xs text-gray-300">
+                        <span>{{ content.first_air_date[0:4] }}</span>
+                        <span>⭐ {{ content.vote_average }}</span>
+                    </div>
+                    <div class="mt-2 flex justify-center space-x-2">
+                        {{ content.buttons | safe }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="w-full text-center text-gray-500 py-8">
+            <p class="text-lg">Your watched tv list is empty</p>
+        </div>
+    {% endif %}
+</div>
+
+<button
+hx-swap-oob="outerHTML:#scroll_right_watched_tv"
+id="scroll_right_watched_tv"
+class="z-10 absolute right-14  top-1/2 -translate-y-1/2 p-3 bg-sky-600 text-white rounded-full
+shadow-lg hover:bg-sky-500 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sky-400 -mr-4"
+hx-get="/home/watched_tv_items"
+hx-vals='{"offset": {{ offset }}, "limit": {{ limit }}, "sort_by": "{{ sort_by }}",
+"sorting_order": "{{ sorting_order }}", "sort_button_id": "{{ sort_button_id }}" }'
+hx-target="#watched_tv_content"
+hx-swap="beforeend">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    </svg>
+</button>
+
+{% if not sorting_order %}
+    <button
+    hx-swap-oob="outerHTML:#scroll_right_watched_tv"
+    id="scroll_right_watched_tv"
+    class="z-10 absolute right-14  top-1/2 -translate-y-1/2 p-3 bg-sky-600 text-white rounded-full shadow-lg
+    hover:bg-sky-500 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sky-400 -mr-4"
+    hx-get="/home/watched_tv_items"
+    hx-vals='{"offset": {{ offset }}, "limit": {{ limit }}, "sort_button_id": "{{ sort_button_id }}" }'
+    hx-target="#watched_tv_content"
+    hx-swap="beforeend">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+    </button>
+{% endif %}
+
+<div hx-swap-oob="outerHTML:#watched_tv_release_date_sort_order"
+    id="watched_tv_release_date_sort_order"
+    class="hidden group-hover:block absolute left-full top-0 w-32 rounded-md shadow-lg bg-white ring-1 ring-black
+    ring-opacity-5">
+    <button id="watched_tv_release_date_asc"
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+        hx-get="/home/watched_tv_items"
+        hx-vals='{"offset": -5, "limit": 5, "sort_by": "release_date", "sorting_order": "asc",
+        "sort_button_id": "watched_tv_release_date_asc" }'
+        hx-target="#watched_tv_content"
+        hx-swap="innerHTML">
+        asc</button>
+    <button id="watched_tv_release_date_desc"
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+        hx-get="/home/watched_tv_items"
+        hx-vals='{"offset": -5, "limit": 5, "sort_by": "release_date", "sorting_order": "desc",
+        "sort_button_id": "watched_tv_release_date_desc" }'
+        hx-target="#watched_tv_content"
+        hx-swap="innerHTML">
+        desc</button>
+</div>
+
+<div hx-swap-oob="outerHTML:#watched_tv_rating_sort_order"
+    id="watched_tv_rating_sort_order"
+    class="hidden group-hover:block absolute left-full top-8 w-32 rounded-md shadow-lg bg-white ring-1 ring-black
+    ring-opacity-5">
+    <button id="watched_tv_rating_asc"
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+        hx-get="/home/watched_tv_items"
+        hx-vals='{"offset": -5, "limit": 5, "sort_by": "rating", "sorting_order": "asc",
+        "sort_button_id": "watched_tv_rating_asc"}'
+        hx-target="#watched_tv_content"
+        hx-swap="innerHTML">
+        asc</button>
+    <button id="watched_tv_rating_desc"
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+        hx-get="/home/watched_tv_items"
+        hx-vals='{"offset": -5, "limit": 5, "sort_by": "rating", "sorting_order": "desc",
+        "sort_button_id": "watched_tv_rating_desc"}'
+        hx-target="#watched_tv_content"
+        hx-swap="innerHTML">
+        desc</button>
+</div>
+
+<div hx-swap-oob="watched_tv_added_time_sort_order"
+    id="watched_tv_added_time_sort_order"
+    class="hidden group-hover:block absolute left-full top-16 w-32 rounded-md shadow-lg bg-white ring-1 ring-black
+    ring-opacity-5">
+    <button id="watched_tv_added_time_asc"
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+        hx-get="/home/watched_tv_items"
+        hx-vals='{"offset": -5, "limit": 5, "sort_by": "added_time", "sorting_order": "asc",
+        "sort_button_id": "watched_tv_added_time_asc"}'
+        hx-target="#watched_tv_content"
+        hx-swap="innerHTML">
+        asc</button>
+    <button id="watched_tv_added_time_desc"
+            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+        hx-get="/home/watched_tv_items"
+        hx-vals='{"offset": -5, "limit": 5, "sort_by": "added_time", "sorting_order": "desc",
+        "sort_button_id": "watched_tv_added_time_desc"}'
+        hx-target="#watched_tv_content"
+        hx-swap="innerHTML">
+        desc</button>
+</div>
+{% if sorting_order %}
+    <button  hx-swap-oob="outerHTML:#{{ sort_button_id }}"
+            class="block w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-gray-100"
+        hx-get="/home/watched_tv_items"
+        hx-vals='{"offset": -5, "limit": 5, "sort_button_id": "{{ sort_button_id }}"}'
+        hx-target="#watched_tv_content"
+        hx-swap="innerHTML">
+    {{ sorting_order }}</button>
+{% endif %}

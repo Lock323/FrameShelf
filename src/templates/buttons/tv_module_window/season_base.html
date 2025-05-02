@@ -1,0 +1,118 @@
+<div class="swap_season">
+    <button
+    class="bg-[#284370] hover:bg-[#265d7a] text-white font-semibold py-1 px-2 mb-3 rounded-lg transition duration-200
+    ease-in-out font-sans"
+    hx-post="/tv/add_season_watched"
+    hx-vals='{"tv_data": {{ tv_data | tojson }}, "season_data": {{ season | tojson }},
+    "buttons_id": {"buttons_id": "{{ buttons_id }}"} }'
+    hx-ext='json-enc'
+    hx-target="closest .swap_season"
+    hx-swap="outerHTML"
+    >
+    Add Season
+    </button>
+</div>
+
+<div id="season{{ season.season_number }}" class="episodes-container"
+     hx-swap-oob="outerHTML:#season{{ season.season_number }}">
+    {% for unwatched_ep in range(1, season.episode_count + 1) %}
+        {% if loop.index0 % 8 == 0 %}
+            <div class="row">
+        {% endif %}
+        <div class="col-7">
+            <div class="swap_episode">
+                <button
+                    class="bg-[#39519e] hover:bg-[#46316b] text-green font-semibold w-14 h-8 mr-2 mb-2 rounded-lg
+                    transition duration-200 ease-in-out font-sans"
+                    hx-put="/tv/add_episode_watched"
+                    hx-vals='{"tv_data": {{ tv_data | tojson }}, "season_data": {{ season | tojson }},
+                    "episode_data": {"episode_number": {{ unwatched_ep }} },
+                    "buttons_id": {"buttons_id": "{{ buttons_id }}" } }'
+                    hx-ext='json-enc'
+                    hx-target="#season{{ season.season_number }}"
+                    hx-swap="outerHTML"
+                >{{ unwatched_ep }}</button>
+            </div>
+        </div>
+        {% if loop.index0 % 8 == 7 or loop.last %}
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+{% if seasons_left %}
+    <div id="{{ buttons_id }}" hx-swap-oob="outerHTML:#{{ buttons_id }}" class="flex space-x-2">
+        <button
+        title="Update a Watched"
+        class="bg-[#46316b] hover:bg-[#265d7a] text-white font-semibold py-1 px-4 rounded-lg transition duration-200
+        ease-in-out font-sans"
+        hx-get="/tv/info/{{ tv_id }}"
+        hx-vals='{"buttons_id": "{{ buttons_id }}"}'
+        hx-target="body"
+        hx-swap="beforeend"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="32" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+              <circle cx="12" cy="14" r="3"/>
+            </svg>
+        </button>
+        <button
+        title="Add to Watchlist"
+        class="bg-[#23486b] hover:bg-[#265d7a] text-white font-semibold py-1 px-4 rounded-lg transition duration-200
+        ease-in-out font-sans"
+        hx-post="/tv/add_watchlist"
+        hx-vals='{"tv_data": {{ tv_data | tojson }}, "buttons_id": {"buttons_id": "{{ buttons_id }}" } }'
+        hx-ext='json-enc'
+        hx-target="closest #{{ buttons_id }}"
+        hx-swap="outerHTML"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="32" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <!-- Watched Icon (bookmark) -->
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+        </button>
+    </div>
+{% else %}
+    <div id="{{ buttons_id }}" hx-swap-oob="outerHTML:#{{ buttons_id }}" class="flex space-x-2">
+        <button
+        title="Add to Watched"
+        class="bg-[#284370] hover:bg-[#265d7a] text-white font-semibold py-1 px-4 rounded-lg transition duration-200
+        ease-in-out font-sans"
+        hx-get="/tv/info/{{ tv_id }}"
+        hx-vals='{"buttons_id": "{{ buttons_id }}"}'
+        hx-target="body"
+        hx-swap=" beforeend">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="32" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+              <path d="M12 11v6"/>
+              <path d="M9 14h6"/>
+            </svg>
+        </button>
+        <button
+        title="Add to Watchlist"
+        class="bg-[#23486b] hover:bg-[#265d7a] text-white font-semibold py-1 px-4 rounded-lg transition duration-200
+        ease-in-out font-sans"
+        hx-post="/tv/add_watchlist"
+        hx-vals='{"tv_data": {{ tv_data | tojson }}, "buttons_id": {"buttons_id": "{{ buttons_id }}" } }'
+        hx-ext='json-enc'
+        hx-target="closest #{{ buttons_id }}"
+        hx-swap="outerHTML"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="32" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+            </svg>
+        </button>
+    </div>
+{% endif %}
+<div id="watched_percent_bar" hx-swap-oob="outerHTML:#watched_percent_bar">
+    <span class="text-blue">{{ watched_percent }}%</span>
+    <div class="w-full bg-[#564a61] rounded-full h-2.5 ">
+          <div class="bg-[#3a62ba] h-2.5 rounded-full" style="width: {{ watched_percent }}%"></div>
+    </div>
+</div>

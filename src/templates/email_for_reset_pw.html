@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block head %}
+<script src="https://unpkg.com/htmx.org@1.9.11"></script>
+<script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/json-enc.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/response-targets.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-[300px] mx-auto p-5" hx-ext="response-targets">
+  <h3 class="text-lg font-semibold mb-2">Enter the e-mail address connected to your account</h3>
+  <br>
+  <form
+    hx-get="/link_reset_pw"
+    hx-ext='json-enc'
+    hx-target="#responseText"
+    hx-target-400="#responseText"
+  >
+    <div class="relative mb-4">
+      <input
+        type="email"
+        name="user_email"
+        placeholder="Email"
+        required
+        class="w-full p-2.5 mb-2 text-gray-900 bg-white dark:text-gray-100 dark:bg-gray-800 border border-gray-300
+        dark:border-gray-700 rounded-md"
+      >
+    </div>
+
+    <button
+      type="submit"
+      class="w-full p-2.5 cursor-pointer text-gray-900 bg-white dark:text-gray-100 dark:bg-gray-800 border
+      border-gray-300 dark:border-gray-700 rounded-md"
+    >
+      Done
+    </button>
+
+    <div id="responseText" class="mt-2"></div>
+    <div id="response"></div>
+    <br>
+  </form>
+</div>
+{% endblock %}

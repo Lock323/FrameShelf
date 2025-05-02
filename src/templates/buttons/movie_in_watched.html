@@ -1,0 +1,36 @@
+<div class="swap flex space-x-2">
+    <button
+    title="Remove from Watched"
+    class="bg-[#a66e44] hover:bg-[#b38890] text-white font-semibold py-1 px-4 rounded-lg transition duration-300
+    ease-in-out font-sans"
+    hx-delete="/movie/remove"
+    hx-vals='{{ content | tojson }}'
+    hx-ext='json-enc'
+    hx-headers='{"status": "watched"}'
+    hx-target="closest .swap"
+    hx-swap="outerHTML"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="32" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+            <polyline points="10 14 12 16 16 12"/>
+        </svg>
+    </button>
+    <button
+    title="Add to Watchlist"
+    class="bg-[#23486b] hover:bg-[#265d7a] text-white font-semibold py-1 px-4 rounded-lg transition duration-200
+    ease-in-out font-sans"
+    hx-post="/movie/status"
+    hx-vals='{{ content | tojson }}'
+    hx-ext='json-enc'
+    hx-headers='{"status": "watchlist"}'
+    hx-target="closest .swap"
+    hx-swap="outerHTML"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="32" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+        </svg>
+    </button>
+</div>

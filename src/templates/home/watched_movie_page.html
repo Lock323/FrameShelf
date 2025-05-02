@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block head %}
+<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+<link rel="stylesheet" href="/static/style.css">
+{% endblock %}
+
+{% block content %}
+
+<div id="watched_movie_page_items" class="container mx-auto">
+    <h1 class="text-2xl font-bold mb-4 text-center text-gray-800">Watched Movies</h1>
+
+    <div id="watched_movie_page_items_content" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4
+    gap-4">
+        {% if watched_movie_content %}
+            {% for content in watched_movie_content %}
+                <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                    <img
+                        src="/proxy/image/w200{{ content.poster_path }}"
+                        alt="{{ content.title }}"
+                        class="w-full h-80 object-contain bg-gray-200"
+                        onclick="window.location.href='/{{ content.media_type }}/page/{{ content.id }}'"
+                    >
+                    <div class="p-2">
+                        <h2 class="text-sm font-semibold text-gray-800 truncate">{{ content.title }}</h2>
+                        <div class="flex justify-between text-xs text-gray-600">
+                            <span>{{ content.release_date[0:4] }}</span>
+                            <span>⭐ {{ content.vote_average }}</span>
+                            <span>{{ content.media_type }}</span>
+                        </div>
+                        {{ content.buttons | safe }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-span-full text-center text-gray-500 py-8">
+                <p>No movies added to watched list</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div id="bottom-trigger"
+         hx-get="/home/watched_movie_page_items"
+         hx-vals='{"offset": {{ offset }}, "limit": {{ limit }}}'
+         hx-trigger="intersect once threshold:0.5"
+         hx-target="#watched_movie_page_items"
+         hx-swap="beforeend"
+         class="text-center mt-4">
+        <span id="bottom-indicator" class="htmx-indicator text-gray-600">
+            Loading...
+        </span>
+    </div>
+</div>
+
+{% endblock %}

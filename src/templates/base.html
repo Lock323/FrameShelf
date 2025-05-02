@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% block head %}{% endblock %}
+    <script src="https://unpkg.com/htmx.org@1.9.4/dist/htmx.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.11/dist/ext/json-enc.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>FrameShelf</title>
+    <style>
+        @font-face {
+            font-family: 'IMDbLike';
+            src: url('https://db.onlinewebfonts.com/t/157c6cc36dd65b1b2adc9e7f3329c761.woff2') format('woff2');
+        }
+        .imdb-style {
+            font-family: 'Arial Black', sans-serif;
+            color: #F5C518;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body class="text-white bg-[#0a1524]">
+    <script>
+        const searchForOperation = () => {
+            const searchInputValue = document.getElementById("operation_search").value;
+            if (searchInputValue === '') {
+                return;
+            }
+            window.location.href = `/search/${searchInputValue}`;
+        }
+
+        const handleKeyPress = (event) => {
+            if (event.key === "Enter") {
+                searchForOperation();
+            }
+        }
+    </script>
+    <header class="sticky top-0 z-50 h-24 bg-gray-800 text-white shadow-md">
+        <button onclick="window.location.href='/'" class="absolute top-8 left-14 text-3xl imdb-style">
+            FrameShelf</button>
+        <div class="flex-grow flex justify-center">
+            <div class="relative top-6 w-96">
+                <input id="operation_search" type="text" autocomplete="off" placeholder="Search for content"
+                       class="w-full px-4 py-2 bg-gray-700 bg-opacity-50 rounded-full text-white placeholder-gray-400
+                       focus:outline-none focus:ring-2 focus:ring-orange-400 text-lg"
+                       onkeypress="handleKeyPress(event)">
+                <button onclick="searchForOperation()" class="absolute right-2 top-1/2 transform -translate-y-1/2 p-1
+                bg-orange-500 text-white rounded-full hover:bg-orange-600 transition duration-300 ease-in-out">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <button onclick="window.location.href='/home'" class="absolute top-8 right-12 px-4 py-2 bg-transparent border
+         border-[#F5C518] text-[#F5C518] rounded-md hover:bg-[#F5C518] hover:text-white transition duration-300
+         ease-in-out text-sm font-semibold">
+            Home
+        </button>
+    </header>
+    <hr class="border-gray-700">
+
+
+    <div id="content" class="p-4">
+        {% block content %}{% endblock %}
+    </div>
+
+
+</body>
+</html>

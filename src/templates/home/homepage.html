@@ -1,0 +1,585 @@
+{% extends "base.html" %}
+
+{% block head %}
+<script src="https://unpkg.com/htmx.org@1.9.4/dist/htmx.min.js"></script>
+<link rel="stylesheet" href="/static/style.css">
+<title>FrameShelf Homepage</title>
+<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
+<script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/response-targets.js"></script>
+<script src="/static/auto-scroll.js" defer></script>
+{% endblock %}
+
+{% block content %}
+<br>
+<br>
+<div class="flex justify-center">
+  <img src="/static/profile.svg" class="w-24 h-24" alt="Profile">
+</div>
+
+<h3 class="text-3xl font-extrabold text-center mt-4 text-amber-600">{{ user.username }}</h3>
+<h4 class="text-1xl font-cursive text-center mt-0 text-blue-300">{{ user.email }}</h4>
+<br>
+<br>
+<h3 class="text-2xl font-bold text-center my-5">Watchlist</h3>
+<div id="watchlist" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="relative flex items-center space-x-4">
+        <button
+            id="scroll_left_watchlist"
+            class="z-10 absolute left-0 top-1/2 -translate-y-1/2 p-3 bg-sky-600 text-white rounded-full shadow-lg
+            hover:bg-sky-500 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sky-400 -ml-10"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <button
+            id="scroll_right_watchlist"
+            class="z-10 absolute right-14  top-1/2 -translate-y-1/2 p-3 bg-sky-600 text-white rounded-full shadow-lg
+            hover:bg-sky-500 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sky-400 -mr-4"
+            hx-get="/home/watchlist_items"
+            hx-vals='{"offset": {{ offset }}, "limit": {{ limit }}}'
+            hx-target="#watchlist_content"
+            hx-target-204="#non_existed_object"
+            hx-swap="beforeend"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+
+        <div id="watchlist_content" class="w-full overflow-x-auto flex flex-row bg-gray-100 p-6 mb-4 rounded-3xl
+        no-scrollbar relative">
+    <div class="flex space-x-4 px-4">
+                {% if watchlist_content %}
+                    {% for content in watchlist_content %}
+                        <div class="content_item flex-shrink-0 w-48 bg-gray-800 rounded-md shadow-md overflow-hidden">
+                            <div class="relative pb-[140%]">
+                                <img src="/proxy/image/w200{{ content.poster_path }}" alt="{{ content.title }}"
+                                     class="absolute inset-0 w-full h-full object-cover"
+                                     onclick="window.location.href='/{{ content.media_type }}/page/{{ content.id }}'">
+                            </div>
+                            <div class="p-2">
+                                <h3 class="text-sm font-semibold text-white line-clamp-2 h-10"
+                                    title="{{ content.title }}">{{ content.title }}{{ content.name }}</h3>
+                                <div class="flex items-center justify-between mt-1 text-xs text-gray-300">
+                                    {% if content.release_date %}
+                                        <p class="text-md text-gray-300 mb-2">{{ content.release_date[0:4] }}</p>
+                                    {% elif content.first_air_date %}
+                                        <p class="text-md text-gray-300 mb-2">{{ content.first_air_date[0:4] }}</p>
+                                    {% endif %}
+                                    <span>⭐ {{ content.vote_average }}</span>
+                                </div>
+                                <div class="mt-2 flex justify-center space-x-2">
+                                    {{ content.buttons | safe }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="w-full h-[400px] text-center text-gray-500 py-8">
+                        <p class="text-lg">Your watchlist is empty</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="flex-shrink-0 flex flex-col space-y-4 w-24 ">
+            <div id="sort_watchlist" class="relative">
+                <button
+                    id="sort_watchlist_button"
+                    class=" w-fit px-2 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors
+                    duration-300 flex items-center justify-center space-x-2 focus:outline-none focus:ring-2
+                    focus:ring-blue-400 -mt-32"
+                    _="on click toggle .hidden on #dropdown-menu-watchlist"
+                    title="sort by"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100
+                        2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414
+                        0l-3 3a1 1 0 101.414 1.414L13 10.414V16z" />
+                    </svg>
+                </button>
+                <div id="dropdown-menu-watchlist" class="hidden z-10 absolute right-0 mt-2 w-56 rounded-md shadow-lg
+                bg-white ring-1 ring-black ring-opacity-5">
+                    <div class="group">
+                        <button
+                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                            release date
+                        </button>
+                        <div id="watchlist_release_date_sort_order"
+                            class="hidden group-hover:block absolute left-full top-0 w-32 rounded-md shadow-lg bg-white
+                            ring-1 ring-black ring-opacity-5">
+                            <button id="watchlist_release_date_asc"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                hx-get="/home/watchlist_items"
+                                hx-vals='{"offset": -5, "limit": 5, "sort_by": "release_date", "sorting_order": "asc",
+                                "sort_button_id": "watchlist_release_date_asc"}'
+                                hx-target="#watchlist_content"
+                                hx-swap="innerHTML">
+                                asc</button>
+                            <button id="watchlist_release_date_desc"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                hx-get="/home/watchlist_items"
+                                hx-vals='{"offset": -5, "limit": 5, "sort_by": "release_date", "sorting_order": "desc",
+                                "sort_button_id": "watchlist_release_date_desc"}'
+                                hx-target="#watchlist_content"
+                                hx-swap="innerHTML">
+                                desc</button>
+                        </div>
+                    </div>
+                    <div class="group">
+                        <button
+                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                            rating
+                        </button>
+                        <div id="watchlist_rating_sort_order"
+                            class="hidden group-hover:block absolute left-full top-8 w-32 rounded-md shadow-lg bg-white
+                            ring-1 ring-black ring-opacity-5">
+                            <button id="watchlist_rating_asc"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                hx-get="/home/watchlist_items"
+                                hx-vals='{"offset": -5, "limit": 5, "sort_by": "rating", "sorting_order": "asc",
+                                "sort_button_id": "watchlist_rating_asc"}'
+                                hx-target="#watchlist_content"
+                                hx-swap="innerHTML">
+                                asc</button>
+                            <button id="watchlist_rating_desc"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                hx-get="/home/watchlist_items"
+                                hx-vals='{"offset": -5, "limit": 5, "sort_by": "rating", "sorting_order": "desc",
+                                "sort_button_id": "watchlist_rating_desc"}'
+                                hx-target="#watchlist_content"
+                                hx-swap="innerHTML">
+                                desc</button>
+                        </div>
+                    </div>
+                    <div class="group">
+                        <button
+                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                            added time
+                        </button>
+                        <div id="watchlist_added_time_sort_order"
+                            class="hidden group-hover:block absolute left-full top-16 w-32 rounded-md shadow-lg bg-white
+                            ring-1 ring-black ring-opacity-5">
+                            <button id="watchlist_added_time_asc"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                hx-get="/home/watchlist_items"
+                                hx-vals='{"offset": -5, "limit": 5, "sort_by": "added_time", "sorting_order": "asc",
+                                "sort_button_id": "watchlist_added_time_asc"}'
+                                hx-target="#watchlist_content"
+                                hx-swap="innerHTML">
+                                asc</button>
+                            <button id="watchlist_added_time_desc"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                hx-get="/home/watchlist_items"
+                                hx-vals='{"offset": -5, "limit": 5, "sort_by": "added_time", "sorting_order": "desc",
+                                "sort_button_id": "watchlist_added_time_desc"}'
+                                hx-target="#watchlist_content"
+                                hx-swap="innerHTML">
+                                desc</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button
+                class="px-2 py-2 relative -top-24 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors
+                duration-300 flex items-center justify-center space-x-2 w-fit focus:outline-none focus:ring-2
+                focus:ring-blue-400"
+                id="watchlist_page_button"
+                onclick="window.location.href='/home/watchlist_page'; return false;"
+                title="see all"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+<br>
+<br>
+<h3 class="text-2xl font-bold text-center my-5" >Watched Movies</h3>
+<div id="watched_movies" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="relative flex items-start space-x-4">
+        <button
+            id="scroll_left_watched_movies"
+            class="z-10 absolute left-0 top-1/2 -translate-y-1/2 p-3 bg-sky-600 text-white rounded-full shadow-lg
+            hover:bg-sky-500 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sky-400 -ml-10"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <button
+            id="scroll_right_watched_movies"
+            class="z-10 absolute right-14  top-1/2 -translate-y-1/2 p-3 bg-sky-600 text-white rounded-full shadow-lg
+            hover:bg-sky-500 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sky-400 -mr-4"
+            hx-get="/home/watched_movie_items"
+            hx-vals='{"offset": {{ offset }}, "limit": {{ limit }}}'
+            hx-target="#watched_movies_content"
+            hx-target-204="#non_existed_object"
+            hx-swap="beforeend"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+
+        <div id="watched_movies_content" class="w-full overflow-x-auto flex flex-row w-[1200px] no-scrollbar
+        rounded-3xl bg-gray-100 p-6 mb-4">
+            <div class="flex space-x-4 px-4">
+                {% if watched_movie_content %}
+                    {% for content in watched_movie_content %}
+                        <div class="content_item flex-shrink-0 w-48 bg-gray-800 rounded-md shadow-md overflow-hidden">
+                            <div class="relative pb-[140%]">
+                                <img src="/proxy/image/w200{{ content.poster_path }}" alt="{{ content.title }}"
+                                     class="absolute inset-0 w-full h-full object-cover"
+                                     onclick="window.location.href='/{{ content.media_type }}/page/{{ content.id }}'">
+                            </div>
+                            <div class="p-2">
+                                <h3 class="text-sm font-semibold text-white line-clamp-2 h-10"
+                                    title="{{ content.title }}">{{ content.title }}</h3>
+                                <div class="flex items-center justify-between mt-1 text-xs text-gray-300">
+                                    <span>{{ content.release_date[0:4] }}</span>
+                                    <span>⭐ {{ content.vote_average }}</span>
+                                </div>
+                                <div class="mt-2 flex justify-center space-x-2">
+                                    {{ content.buttons | safe }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="w-full h-[400px] text-center text-gray-500 py-8">
+                        <p class="text-lg">Your watched movies list is empty</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="flex-shrink-0 flex flex-col w-24">
+            <div id="sort_watched_movies" class="relative inline-block text-left">
+                <button
+                id="sort_watched_movies_button"
+                class=" w-fit px-2 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors
+                duration-300 flex items-center justify-center space-x-2 focus:outline-none focus:ring-2
+                focus:ring-blue-400 mt-24"
+                _="on click toggle .hidden on #dropdown-menu-watched_movies"
+                title="sort by"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100
+                        2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414
+                        0l-3 3a1 1 0 101.414 1.414L13 10.414V16z" />
+                    </svg>
+                </button>
+                <div id="dropdown-menu-watched_movies"
+                    class="hidden z-10 absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black
+                    ring-opacity-5"
+                >
+                <div class="group">
+                    <button
+                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                        release_date
+                    </button>
+                    <div id="watched_movies_release_date_sort_order"
+                        class="hidden group-hover:block absolute left-full top-0 w-32 rounded-md shadow-lg bg-white
+                        ring-1 ring-black ring-opacity-5">
+                        <button id="watched_movies_release_date_asc"
+                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            hx-get="/home/watched_movie_items"
+                            hx-vals='{"offset": -5, "limit": 5, "sort_by": "release_date", "sorting_order": "asc",
+                            "sort_button_id": "watched_movies_release_date_asc"}'
+                            hx-target="#watched_movies_content"
+                            hx-swap="innerHTML">
+                            asc</button>
+                        <button id="watched_movies_release_date_desc"
+                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            hx-get="/home/watched_movie_items"
+                            hx-vals='{"offset": -5, "limit": 5, "sort_by": "release_date", "sorting_order": "desc",
+                            "sort_button_id": "watched_movies_release_date_desc"}'
+                            hx-target="#watched_movies_content"
+                            hx-swap="innerHTML">
+                            desc</button>
+                    </div>
+                </div>
+                <div class="group">
+                    <button
+                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                        rating
+                    </button>
+                    <div id="watched_movies_rating_sort_order"
+                        class="hidden group-hover:block absolute left-full top-8 w-32 rounded-md shadow-lg bg-white
+                        ring-1 ring-black ring-opacity-5">
+                        <button id="watched_movies_rating_asc"
+                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            hx-get="/home/watched_movie_items"
+                            hx-vals='{"offset": -5, "limit": 5, "sort_by": "rating", "sorting_order": "asc",
+                            "sort_button_id": "watched_movies_rating_asc"}'
+                            hx-target="#watched_movies_content"
+                            hx-swap="innerHTML">
+                            asc</button>
+                        <button id="watched_movies_rating_desc"
+                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            hx-get="/home/watched_movie_items"
+                            hx-vals='{"offset": -5, "limit": 5, "sort_by": "rating", "sorting_order": "desc",
+                            "sort_button_id": "watched_movies_rating_desc"}'
+                            hx-target="#watched_movies_content"
+                            hx-swap="innerHTML">
+                            desc</button>
+                    </div>
+                </div>
+                <div class="group">
+                    <button
+                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                        added time
+                    </button>
+                    <div id="watched_movies_added_time_sort_order"
+                        class="hidden group-hover:block absolute left-full top-16 w-32 rounded-md shadow-lg bg-white
+                        ring-1 ring-black ring-opacity-5">
+                        <button id="watched_movies_added_time_asc"
+                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            hx-get="/home/watched_movie_items"
+                            hx-vals='{"offset": -5, "limit": 5, "sort_by": "added_time", "sorting_order": "asc",
+                            "sort_button_id": "watched_movies_added_time_asc"}'
+                            hx-target="#watched_movies_content"
+                            hx-swap="innerHTML">
+                            asc</button>
+                        <button id="watched_movies_added_time_desc"
+                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                            hx-get="/home/watched_movie_items"
+                            hx-vals='{"offset": -5, "limit": 5, "sort_by": "added_time", "sorting_order": "desc",
+                            "sort_button_id": "watched_movies_added_time_desc"}'
+                            hx-target="#watched_movies_content"
+                            hx-swap="innerHTML">
+                            desc</button>
+                    </div>
+                </div>
+        </div>
+            </div>
+            <br>
+            <button
+                class="px-2 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300
+                flex items-center justify-center space-x-2 w-fit focus:outline-none focus:ring-2 focus:ring-blue-400
+                -mt-4"
+                id="watched_movie_page_button"
+                onclick="window.location.href='/home/watched_movie_page'; return false;"
+                title="see all"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+<br>
+<br>
+<h3 class="text-2xl font-bold text-center my-5">Watched TV</h3>
+<div id="watched_tv" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="relative flex items-start space-x-4">
+        <button
+            id="scroll_left_watched_tv"
+            class="z-10 absolute left-0 top-1/2 -translate-y-1/2 p-3 bg-sky-600 text-white rounded-full shadow-lg
+            hover:bg-sky-500 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sky-400 -ml-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+        </button>
+        <button
+            id="scroll_right_watched_tv"
+            class="z-10 absolute right-14  top-1/2 -translate-y-1/2 p-3 bg-sky-600 text-white rounded-full shadow-lg
+            hover:bg-sky-500 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-sky-400 -mr-4"
+            hx-get="/home/watched_tv_items"
+            hx-vals='{"offset": {{ offset }}, "limit": {{ limit }} }'
+            hx-target="#watched_tv_content"
+            hx-target-204="#non_existed_object"
+            hx-swap="beforeend">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+        </button>
+
+        <div id="watched_tv_content" class="w-full overflow-x-auto flex flex-row w-[1200px] no-scrollbar rounded-3xl
+        bg-gray-100 p-6 mb-4">
+            <div class="flex space-x-4 px-4">
+                {% if watched_tv_content %}
+                    {% for content in watched_tv_content %}
+                        <div class="content_item flex-shrink-0 w-48 bg-gray-800 rounded-md shadow-md overflow-hidden">
+                            <div class="relative pb-[140%]">
+                                <img src="/proxy/image/w200{{ content.poster_path }}" alt="{{ content.title }}"
+                                     class="absolute inset-0 w-full h-full object-cover"
+                                     onclick="window.location.href='/{{ content.media_type }}/page/{{ content.id }}'">
+                            </div>
+                            <div class="p-2">
+                                <h3 class="text-sm font-semibold text-white line-clamp-2 h-10"
+                                    title="{{ content.title }}">{{ content.name }}</h3>
+                                <div class="flex items-center justify-between mt-1 text-xs text-gray-300">
+                                    <span>{{ content.first_air_date[0:4] }}</span>
+                                    <span>⭐ {{ content.vote_average }}</span>
+                                </div>
+                                <div class="mt-2 flex justify-center space-x-2">
+                                    {{ content.buttons | safe }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="w-full h-[400px] text-center text-gray-500 py-8">
+                        <p class="text-lg">Your watched tv list is empty</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="flex-shrink-0 pt-6 flex flex-col w-24">
+            <div id="sort_watched_tv" class="relative inline-block text-left">
+                <button
+                    id="sort_watched_tv_button"
+                    class=" w-fit px-2 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors
+                    duration-300 flex items-center justify-center space-x-2 focus:outline-none focus:ring-2
+                    focus:ring-blue-400 mt-16"
+                    _="on click toggle .hidden on #dropdown-menu-watched_tv"
+                    title="sort by">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M3 3a1 1 0 000 2h11a1 1 0 100-2H3zM3 7a1 1 0 000 2h5a1 1 0 000-2H3zM3 11a1 1 0 100
+                            2h4a1 1 0 100-2H3zM13 16a1 1 0 102 0v-5.586l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0
+                            00-1.414 0l-3 3a1 1 0 101.414 1.414L13 10.414V16z" />
+                        </svg>
+                </button>
+                <div id="dropdown-menu-watched_tv"
+                    class="hidden z-10 absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black
+                    ring-opacity-5"
+                >
+                    <div class="group">
+                        <button
+                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                            release_date
+                        </button>
+                        <div id="watched_tv_release_date_sort_order"
+                            class="hidden group-hover:block absolute left-full top-0 w-32 rounded-md shadow-lg bg-white
+                            ring-1 ring-black ring-opacity-5">
+                            <button id="watched_tv_release_date_asc"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                hx-get="/home/watched_tv_items"
+                                hx-vals='{"offset": -5, "limit": 5, "sort_by": "release_date", "sorting_order": "asc",
+                                "sort_button_id": "watched_tv_release_date_asc"}'
+                                hx-target="#watched_tv_content"
+                                hx-swap="innerHTML">
+                                asc</button>
+                            <button id="watched_tv_release_date_desc"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                hx-get="/home/watched_tv_items"
+                                hx-vals='{"offset": -5, "limit": 5, "sort_by": "release_date", "sorting_order": "desc",
+                                "sort_button_id": "watched_tv_release_date_desc"}'
+                                hx-target="#watched_tv_content"
+                                hx-swap="innerHTML">
+                                desc</button>
+                        </div>
+                    </div>
+                    <div class="group">
+                        <button
+                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                            rating
+                        </button>
+                        <div id="watched_tv_rating_sort_order"
+                            class="hidden group-hover:block absolute left-full top-8 w-32 rounded-md shadow-lg bg-white
+                            ring-1 ring-black ring-opacity-5">
+                            <button id="watched_tv_rating_asc"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                hx-get="/home/watched_tv_items"
+                                hx-vals='{"offset": -5, "limit": 5, "sort_by": "rating", "sorting_order": "asc",
+                                "sort_button_id": "watched_tv_rating_asc"}'
+                                hx-target="#watched_tv_content"
+                                hx-swap="innerHTML">
+                                asc</button>
+                            <button id="watched_tv_rating_desc"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                hx-get="/home/watched_tv_items"
+                                hx-vals='{"offset": -5, "limit": 5, "sort_by": "rating", "sorting_order": "desc",
+                                "sort_button_id": "watched_tv_rating_desc"}'
+                                hx-target="#watched_tv_content"
+                                hx-swap="innerHTML">
+                                desc</button>
+                        </div>
+                    </div>
+                    <div class="group">
+                        <button
+                            class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                            added time
+                        </button>
+                        <div id="watched_tv_added_time_sort_order"
+                            class="hidden group-hover:block absolute left-full top-16 w-32 rounded-md shadow-lg bg-white
+                            ring-1 ring-black ring-opacity-5">
+                            <button id="watched_tv_added_time_asc"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                hx-get="/home/watched_tv_items"
+                                hx-vals='{"offset": -5, "limit": 5, "sort_by": "added_time", "sorting_order": "asc",
+                                "sort_button_id": "watched_tv_added_time_asc"}'
+                                hx-target="#watched_tv_content"
+                                hx-swap="innerHTML">
+                                asc</button>
+                            <button id="watched_tv_added_time_desc"
+                                    class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                hx-get="/home/watched_tv_items"
+                                hx-vals='{"offset": -5, "limit": 5, "sort_by": "added_time", "sorting_order": "desc",
+                                "sort_button_id": "watched_tv_added_time_desc"}'
+                                hx-target="#watched_tv_content"
+                                hx-swap="innerHTML">
+                                desc</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <button
+                class="px-2 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300
+                flex items-center justify-center space-x-2 w-fit focus:outline-none focus:ring-2 focus:ring-blue-400
+                -mt-4"
+                id="watched_tv_page_button"
+                onclick="window.location.href='/home/watched_tv_page'; return false;"
+                title="see all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                    </svg>
+            </button>
+        </div>
+    </div>
+
+
+
+</div>
+
+<div class="flex flex-col items-center bg-[#0a1524] p-5 mt-20 rounded-lg text-white">
+    <span class="text-md font-semibold mb-8">FrameShelf by Kozhonberdiev Artur</span>
+    <div class="flex gap-5">
+        <a href="https://t.me/FrankMirrr" target="_blank">
+            <img class="w-6 h-6 filter invert brightness-600 "
+                 src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg" alt="Telegram">
+        </a>
+        <a href="https://github.com/Lock323" target="_blank">
+            <img class="w-6 h-6 invert brightness-600"
+                 src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub">
+        </a>
+    </div>
+</div>
+{% endblock %}
